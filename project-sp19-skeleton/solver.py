@@ -1,6 +1,7 @@
 # Put your solution here.
 import networkx as nx
 import random
+import collections
 
 def solve(client):
     client.end()
@@ -29,7 +30,25 @@ def solve(client):
     	len_of_shortest_path = nx.dijkstra_path_length(client.G, client.home, yes_vertex)
     	yes_reported_length[yes_vertex] = len_of_shortest_path
     #sort yes_reported_length by shortest path to longest path
-    
+    sorted_yes_reported = sorted(yes_reported_length.items(), key=lambda vertex: vertex[1])
+    sorted_dict_paths_of_vertex = OrderedDict(sorted_yes_reported)
+
+    #find shortest path for each vertex in already sorted order
+    for sorted_vertex in sorted_dict_paths_of_vertex:
+    	shortest_path_for_vertex = nx.dijkstra_path(client.G, client.home, sorted_vertex)
+    	yes_reported_path.append(shortest_path_for_vertex)
+
+    #remotes all reported bots to home if there are bots
+    for vertex_path in yes_reported_path:
+    	i = len(vertex_path) - 1 
+    	j = len(vertex_path) - 2
+    	while j >= 0:
+    		if client.remote(i, j) != None:
+    		    i -= 1
+    		    j -= 1
+    		else:
+    			continue
+
 
 
 
