@@ -13,6 +13,11 @@ def solve(client):
     yes_reported =[]
     yes_reported_length = {}
     yes_reported_path = []
+
+    #list of vertices that were not reported as having a guavabot
+    no_reported = []
+    no_reported_length = {}
+    no_reported_path = []
     #student counter
     student_counter = 0
 
@@ -48,13 +53,30 @@ def solve(client):
     		    j -= 1
     		else:
     			continue
+    no_reported = [vertex for vertex in non_home if vertex not in yes_reported]
 
+    #for each vertex in no_reported find length of shortest path
+    for no_vertex in no_reported:
+    	len_of_shortest_path = nx.dijkstra_path_length(client.G, client.home, no_vertex)
+    	no_reported_length[no_vertex] = len_of_shortest_path
+    #sort no_reported_length by shortest path to longest path
+    sorted_no_reported = sorted(no_reported_length.items(), key=lambda vertex: vertex[1])
+    sorted_dict_paths_of_vertex_no = OrderedDict(sorted_no_reported)
 
+    #find shortest path for each vertex in already sorted order
+    for sorted_vertex in sorted_dict_paths_of_vertex_no:
+    	shortest_path_for_vertex = nx.dijkstra_path(client.G, client.home, sorted_vertex)
+    	no_reported_path.append(shortest_path_for_vertex)
 
-
-
-    for _ in range(100):
-        u, v = random.choice(list(client.G.edges()))
-        client.remote(u, v)
+    #remotes all reported bots to home if there are bots
+    for vertex_path in no_reported_path:
+    	i = len(vertex_path) - 1 
+    	j = len(vertex_path) - 2
+    	while j >= 0:
+    		if client.remote(i, j) != None:
+    		    i -= 1
+    		    j -= 1
+    		else:
+    			continue
 
     client.end()
