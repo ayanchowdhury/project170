@@ -2,6 +2,7 @@
 import networkx as nx
 import random
 import collections
+from collections import Counter
 
 def solve(client):
     client.end()
@@ -18,17 +19,21 @@ def solve(client):
     no_reported = []
     no_reported_length = {}
     no_reported_path = []
+
     #student counter
     student_counter = 0
 
     #Send one student to each vertex and add vertex to yes_reported for each vertex with positive report
     for nonhome_vertex in non_home:
-    	gbot_boolean = client.scout(nonhome_vertex, all_students[student_counter])
-    	if gbot_boolean == True:
-    		yes_reported.append(nonhome_vertex)
-    	student_counter += 1
-    	if student_counter > len(all_students) - 1:
-    		student_counter = 0
+        gbot_boolean = client.scout(nonhome_vertex, all_students[student_counter])
+        if gbot_boolean == True:
+            yes_reported.append(nonhome_vertex)
+            student_counter += 1
+        if student_counter > len(all_students) - 1:
+            student_counter = 0
+    	
+        
+
 
     #for each vertex in yes_reported find length of shortest path
     for yes_vertex in yes_reported:
@@ -36,7 +41,7 @@ def solve(client):
     	yes_reported_length[yes_vertex] = len_of_shortest_path
     #sort yes_reported_length by shortest path to longest path
     sorted_yes_reported = sorted(yes_reported_length.items(), key=lambda vertex: vertex[1])
-    sorted_dict_paths_of_vertex = OrderedDict(sorted_yes_reported)
+    sorted_dict_paths_of_vertex = collections.OrderedDict(sorted_yes_reported)
 
     #find shortest path for each vertex in already sorted order
     for sorted_vertex in sorted_dict_paths_of_vertex:
@@ -47,12 +52,14 @@ def solve(client):
     for vertex_path in yes_reported_path:
     	i = len(vertex_path) - 1 
     	j = len(vertex_path) - 2
-    	while j >= 0:
+    	while j > 0:
     		if client.remote(i, j) != None:
     		    i -= 1
     		    j -= 1
     		else:
     			continue
+    
+
     no_reported = [vertex for vertex in non_home if vertex not in yes_reported]
 
     #for each vertex in no_reported find length of shortest path
@@ -61,7 +68,7 @@ def solve(client):
     	no_reported_length[no_vertex] = len_of_shortest_path
     #sort no_reported_length by shortest path to longest path
     sorted_no_reported = sorted(no_reported_length.items(), key=lambda vertex: vertex[1])
-    sorted_dict_paths_of_vertex_no = OrderedDict(sorted_no_reported)
+    sorted_dict_paths_of_vertex_no = collections.OrderedDict(sorted_no_reported)
 
     #find shortest path for each vertex in already sorted order
     for sorted_vertex in sorted_dict_paths_of_vertex_no:
@@ -72,7 +79,7 @@ def solve(client):
     for vertex_path in no_reported_path:
     	i = len(vertex_path) - 1 
     	j = len(vertex_path) - 2
-    	while j >= 0:
+    	while j > 0:
     		if client.remote(i, j) != None:
     		    i -= 1
     		    j -= 1
