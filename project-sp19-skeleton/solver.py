@@ -35,7 +35,7 @@ def solve(client):
                 truth_counter += 1
             else:
                 false_counter += 1
-        if truth_counter > (num_students / 2):
+        if truth_counter > (num_students / 3):
             yes_reported.append(nonhome_vertex)
             student_counter += 1
         if student_counter > len(all_students) - 1:
@@ -59,7 +59,9 @@ def solve(client):
         i = len(vertex_path) - 1 
         j = len(vertex_path) - 2
         while j >= 0:
-            client.remote(vertex_path[i], vertex_path[j])
+            num_bots = client.remote(vertex_path[i], vertex_path[j])
+            if num_bots == 0:
+                break
             i -= 1
             j -= 1
     
@@ -84,7 +86,7 @@ def solve(client):
         i = len(vertex_path) - 1 
         j = len(vertex_path) - 2
         while j > 0:
-            client.remote(vertex_path[i], vertex_path[j])
+            num_bots = client.remote(vertex_path[i], vertex_path[j])
             i -= 1
             j -= 1
     client.end()
