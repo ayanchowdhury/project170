@@ -21,9 +21,6 @@ def solve(client):
     no_reported_length = {}
     no_reported_path = []
 
-    #student counter
-    student_counter = 0
-
     #Send one student to each vertex and add vertex to yes_reported for each vertex with positive report
     for nonhome_vertex in non_home:
         truth_counter = 0
@@ -37,9 +34,6 @@ def solve(client):
                 false_counter += 1
         if truth_counter > (num_students / 3):
             yes_reported.append(nonhome_vertex)
-            student_counter += 1
-        if student_counter > len(all_students) - 1:
-            student_counter = 0
 
     #for each vertex in yes_reported find length of shortest path
     for yes_vertex in yes_reported:
@@ -87,6 +81,8 @@ def solve(client):
         j = len(vertex_path) - 2
         while j > 0:
             num_bots = client.remote(vertex_path[i], vertex_path[j])
+            if num_bots == 0:
+                break
             i -= 1
             j -= 1
     client.end()
