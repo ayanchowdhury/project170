@@ -13,13 +13,11 @@ def solve(client):
     num_students= len(all_students)
     #list of vertices that were reported as having a guavabot
     yes_reported =[]
-    yes_reported_length = {}
-    yes_reported_path = []
+    test_dict = {}
 
     #list of vertices that were not reported as having a guavabot
     no_reported = []
-    no_reported_length = {}
-    no_reported_path = []
+    test_dict_no = {}
 
     #Send one student to each vertex and add vertex to yes_reported for each vertex with positive report
     for nonhome_vertex in non_home:
@@ -37,23 +35,19 @@ def solve(client):
 
     #for each vertex in yes_reported find length of shortest path
     for yes_vertex in yes_reported:
-        len_of_shortest_path = nx.dijkstra_path_length(client.G, client.home, yes_vertex)
-        yes_reported_length[yes_vertex] = len_of_shortest_path
-    #sort yes_reported_length by shortest path to longest path
-    sorted_yes_reported = sorted(yes_reported_length.items(), key=lambda vertex: vertex[1])
-    sorted_dict_paths_of_vertex = collections.OrderedDict(sorted_yes_reported)
+        short_path, path_length = nx.single_source_dijkstra(client.G, client.home, yes_vertex)
+        test_dict[yes_vertex] = [short_path, path_length]
 
-    #find shortest path for each vertex in already sorted order
-    for sorted_vertex in sorted_dict_paths_of_vertex:
-        shortest_path_for_vertex = nx.dijkstra_path(client.G, client.home, sorted_vertex)
-        yes_reported_path.append(shortest_path_for_vertex)
+    #test_dict
+    sorted_test = sorted(test_dict.items(), key=lambda vertex: vertex[1][0])
+    sorted_test_dict = collections.OrderedDict(sorted_test)
 
     #remotes all reported bots to home if there are bots
-    for vertex_path in yes_reported_path:
-        i = len(vertex_path) - 1 
-        j = len(vertex_path) - 2
+    for vertex_path in sorted_test_dict.values():
+        i = len(vertex_path[1]) - 1 
+        j = len(vertex_path[1]) - 2
         while j >= 0:
-            num_bots = client.remote(vertex_path[i], vertex_path[j])
+            num_bots = client.remote(vertex_path[1][i], vertex_path[1][j])
             if num_bots == 0:
                 break
             i -= 1
@@ -64,23 +58,17 @@ def solve(client):
 
     #for each vertex in no_reported find length of shortest path
     for no_vertex in no_reported:
-        len_of_shortest_path = nx.dijkstra_path_length(client.G, client.home, no_vertex)
-        no_reported_length[no_vertex] = len_of_shortest_path
-    #sort no_reported_length by shortest path to longest path
-    sorted_no_reported = sorted(no_reported_length.items(), key=lambda vertex: vertex[1])
-    sorted_dict_paths_of_vertex_no = collections.OrderedDict(sorted_no_reported)
-
-    #find shortest path for each vertex in already sorted order
-    for sorted_vertex in sorted_dict_paths_of_vertex_no:
-        shortest_path_for_vertex = nx.dijkstra_path(client.G, client.home, sorted_vertex)
-        no_reported_path.append(shortest_path_for_vertex)
+        short_path, path_length = nx.single_source_dijkstra(client.G, client.home, yes_vertex)
+        test_dict_no[yes_vertex] = [short_path, path_length]
+    sorted_test_no = sorted(test_dict_no.items(), key=lambda vertex: vertex[1][0])
+    sorted_test_dict_no = collections.OrderedDict(sorted_test)
 
     #remotes all reported bots to home if there are bots
-    for vertex_path in no_reported_path:
-        i = len(vertex_path) - 1 
-        j = len(vertex_path) - 2
+    for vertex_path in sorted_test_dict_no.values():
+        i = len(vertex_path[1]) - 1 
+        j = len(vertex_path[1]) - 2
         while j > 0:
-            num_bots = client.remote(vertex_path[i], vertex_path[j])
+            num_bots = client.remote(vertex_path[1][i], vertex_path[1][j])
             if num_bots == 0:
                 break
             i -= 1
